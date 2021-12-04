@@ -34,7 +34,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: ["amd64", "i386", "ppc64le", "arm64v8"]
+        platform: ["amd64", "i386", "ppc64le", "arm64v8", "arm32v7", "s390x"]
     steps:
       - name: Set up QEMU
         if: matrix.platform != 'amd64'
@@ -46,7 +46,7 @@ jobs:
           path: dist
       - name: Build binaries
         env:
-          CXXFLAGS: "-D_FORTIFY_SOURCE=2 -fstack-protector-strong -Wformat -Werror=format-security -O2 -static-pie"
+          CXXFLAGS: "-D_FORTIFY_SOURCE=2 -fstack-protector-strong -Wformat -Werror=format-security -O2 -static"
         run: |
           cat <<EOF > build.sh
           set -e
