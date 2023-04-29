@@ -41,6 +41,7 @@ AC_ARG_WITH([ubsan],
 )
 AM_CONDITIONAL([WITH_UBSAN], [test x"$with_ubsan" = xyes])
 
+AM_CONDITIONAL([ALMALINUX8], [grep 'ID="almalinux"' /etc/os-release && grep 'VERSION_ID="8.' /etc/os-release])
 AM_CONDITIONAL([CENTOS7], [grep 'ID="centos"' /etc/os-release && grep 'VERSION_ID="7"' /etc/os-release])
 AM_CONDITIONAL([S390X], [test x"$(uname -m)" = xs390x])
 AM_CONDITIONAL([AARCH64], [test x"$(uname -m)" = xaarch64])

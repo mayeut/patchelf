@@ -66,6 +66,14 @@ if S390X
 XFAIL_TESTS += set-interpreter-long.sh replace-add-needed.sh
 endif
 endif
+if ALMALINUX8
+if AARCH64
+XFAIL_TESTS += set-interpreter-long.sh replace-add-needed.sh
+endif
+if S390X
+XFAIL_TESTS += set-interpreter-long.sh replace-add-needed.sh
+endif
+endif
 
 EXTRA_DIST = no-rpath-prebuild $(src_TESTS) no-rpath-prebuild.sh invalid-elf endianness empty-note \
 			 overlapping-segments-after-rounding short-first-segment.gz
@@ -169,8 +177,8 @@ too_many_strtab_SOURCES = too-many-strtab.c too-many-strtab2.s
 libtoomanystrtab_so_SOURCES = too-many-strtab.c too-many-strtab2.s
 libtoomanystrtab_so_LDFLAGS = $(LDFLAGS_sharedlib)
 
-many_syms_main_SOURCES = many-syms-main.c 
-many_syms_main_LDFLAGS = $(LDFLAGS_local) 
+many_syms_main_SOURCES = many-syms-main.c
+many_syms_main_LDFLAGS = $(LDFLAGS_local)
 many_syms_main_LDADD = -lmany-syms $(AM_LDADD)
 many_syms_main_DEPENDENCIES = libmany-syms.so
 many_syms_main_CFLAGS = -fPIC -pie
