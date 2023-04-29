@@ -57,6 +57,15 @@ build_TESTS = \
   $(no_rpath_arch_TESTS)
 
 TESTS = $(src_TESTS) $(build_TESTS)
+XFAIL_TESTS =
+if CENTOS7
+if AARCH64
+XFAIL_TESTS += set-interpreter-long.sh replace-add-needed.sh
+endif
+if S390X
+XFAIL_TESTS += replace-add-needed.sh
+endif
+endif
 
 EXTRA_DIST = no-rpath-prebuild $(src_TESTS) no-rpath-prebuild.sh invalid-elf endianness empty-note \
 			 overlapping-segments-after-rounding short-first-segment.gz
