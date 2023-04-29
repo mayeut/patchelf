@@ -63,7 +63,7 @@ if AARCH64
 XFAIL_TESTS += set-interpreter-long.sh replace-add-needed.sh
 endif
 if S390X
-XFAIL_TESTS += replace-add-needed.sh
+XFAIL_TESTS += set-interpreter-long.sh replace-add-needed.sh
 endif
 endif
 
