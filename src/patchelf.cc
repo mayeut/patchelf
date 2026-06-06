@@ -913,7 +913,7 @@ void ElfFile<ElfFileParamNames>::rewriteSectionsExecutable()
         debug("needed space is %d\n", neededSpace);
 
         /* Calculate how many bytes are needed out of the additional pages. */
-        size_t extraSpace = neededSpace - startOffset; 
+        size_t extraSpace = neededSpace - startOffset;
         unsigned int neededPages = roundUp(extraSpace, getPageSize()) / getPageSize();
         debug("needed pages is %d\n", neededPages);
         if (neededPages * getPageSize() > firstPage)
@@ -1079,6 +1079,8 @@ void ElfFile<ElfFileParamNames>::rewriteHeaders(Elf_Addr phdrAddress)
                 dyn->d_un.d_ptr = findSectionHeader(".dynsym").sh_addr;
             else if (d_tag == DT_HASH)
                 dyn->d_un.d_ptr = findSectionHeader(".hash").sh_addr;
+            else if (d_tag == DT_INIT)
+                dyn->d_un.d_ptr = findSectionHeader(".init").sh_addr;
             else if (d_tag == DT_GNU_HASH) {
                 auto shdr = tryFindSectionHeader(".gnu.hash");
                 // some binaries might this section stripped
