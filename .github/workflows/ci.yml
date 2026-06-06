@@ -29,3 +29,76 @@ jobs:
         mkdir build && cd build
         ../configure --with-asan --with-ubsan
         make -j$(nproc) check
+
+  distro_matrix:
+    name: build distribution matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - id: matrix
+        name: build matrix
+        shell: python
+        run: |
+          import os
+          import json
+          runner = {
+              "amd64": "ubuntu-24.04",
+              "386": "ubuntu-24.04",
+              "arm64/v8": "ubuntu-24.04-arm",
+              "arm/v7": "ubuntu-24.04-arm",
+              "ppc64le": "ubuntu-24.04",
+              "s390x": "ubuntu-24.04",
+              "riscv64": "ubuntu-24.04",
+          }
+          reduced = [
+              ("almalinux:8",  ("amd64", "arm64/v8")),
+              ("almalinux:9",  ("amd64", "arm64/v8")),
+              ("ubuntu:26.04",  ("amd64", "arm64/v8")),
+          ]
+          expanded = [{"distro": distro, "platform": platform, "runner": runner[platform]} for distro, platforms in reduced for platform in platforms]
+          print(json.dumps(expanded, indent=2))
+          with open(os.environ["GITHUB_OUTPUT"], "at") as f:
+              f.write(f"matrix={json.dumps(expanded)}")
+
+  distro_check:
+    needs: distro_matrix
+    name: ${{ matrix.distro }} ${{ matrix.platform }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.distro_matrix.outputs.matrix) }}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up QEMU
+      if: runner.arch == 'X64' && matrix.platform != 'amd64'
+      uses: docker/setup-qemu-action@v3
+    - run: |
+        # ${{ matrix.distro }} ${{ matrix.platform }} tests
+        cat <<EOF > build.sh
+        set -e
+        set -x
+
+        case "${{ matrix.distro }}" in
+            ubuntu*|debian*) apt-get update && apt-get -y install automake g++ make;;
+        esac
+
+        c++ --version
+        ld --version
+        autoconf --version
+        ./bootstrap.sh
+        mkdir build && cd build
+        ../configure
+        make -j$(nproc) check || (cat tests/test-suite.log; exit 1)
+        EOF
+
+        case "${{ matrix.distro }}" in
+            centos:7) IMAGE=quay.io/pypa/manylinux2014:latest;;
+            almalinux:8) IMAGE=quay.io/pypa/manylinux_2_28:2026.01.03-1;;
+            almalinux:9) IMAGE=quay.io/pypa/manylinux_2_34:2026.01.03-1;;
+            *) IMAGE=${{ matrix.distro }}
+        esac
+
+        docker run --platform linux/${{ matrix.platform }} -v $(pwd):/gha ${IMAGE} sh -ec "cd /gha && bash ./build.sh"
