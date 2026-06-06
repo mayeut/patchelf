@@ -17,7 +17,9 @@ cp libbar-scoped.so ${SCRATCH}/libsB/
 
 oldRPath=$(../src/patchelf --print-rpath ${SCRATCH}/main-scoped)
 if test -z "$oldRPath"; then oldRPath="/oops"; fi
+readelf -ed ${SCRATCH}/main-scoped
 ../src/patchelf --set-rpath $oldRPath:$(pwd)/${SCRATCH}/libsA:$(pwd)/${SCRATCH}/libsB ${SCRATCH}/main-scoped
+readelf -ed ${SCRATCH}/main-scoped
 
 # "main" contains libbar in its RUNPATH, but that's ignored when
 # resolving libfoo.  So libfoo won't find libbar and this will fail.
@@ -31,7 +33,9 @@ fi
 # So set an RUNPATH on libfoo as well.
 oldRPath=$(../src/patchelf --print-rpath ${SCRATCH}/libsA/libfoo-scoped.so)
 if test -z "$oldRPath"; then oldRPath="/oops"; fi
+readelf -ed ${SCRATCH}/libsA/libfoo-scoped.so
 ../src/patchelf --set-rpath $oldRPath:$(pwd)/${SCRATCH}/libsB ${SCRATCH}/libsA/libfoo-scoped.so
+readelf -ed ${SCRATCH}/libsA/libfoo-scoped.so
 
 exitCode=0
 (cd ${SCRATCH} && ./main-scoped) || exitCode=$?
