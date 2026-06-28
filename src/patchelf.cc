@@ -400,7 +400,7 @@ unsigned int ElfFile<ElfFileParamNames>::getPageSize() const noexcept
       case EM_SPARCV9: /* SPARC64 support */
         return 0x2000;
       default:
-        return 0x1000;
+        return 0x4000;
     }
 }
 
